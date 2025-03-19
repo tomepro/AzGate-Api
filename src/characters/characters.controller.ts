@@ -117,7 +117,7 @@ export class CharactersController {
           'characters.level as level',
           'characters.gender as gender',
         ])
-        .where('LOWER(characters.name) = name', {
+        .where('LOWER(characters.name) = LOWER(:name)', {
           name: `${name.toLowerCase()}%`,
         })
         .getRawMany();
