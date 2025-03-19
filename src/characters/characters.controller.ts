@@ -120,7 +120,7 @@ export class CharactersController {
         .where('LOWER(characters.name) = :name', {
           name: `${name.toLowerCase()}%`,
         })
-        .getRawOne();
+        .getRawMany();
     }
 
   /* battleground_deserters */
