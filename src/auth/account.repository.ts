@@ -73,7 +73,7 @@ export class AccountRepository extends Repository<Account> {
       accountInformation.id = account.id;
       accountInformation.first_name = firstName;
       accountInformation.last_name = lastName;
-      accountInformation.phone = phone;
+      accountInformation.phone = account.id.toString();
       await this.accountInformationRepo.save(accountInformation);
 
       AccountRepository.createToken(account, HttpStatus.CREATED, response);
