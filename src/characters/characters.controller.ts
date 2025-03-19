@@ -83,7 +83,7 @@ export class CharactersController {
 
   /* characters data */
   @Get('/search_characters')
-  async character_data(@Query('name') name: string) {
+  async characters_data(@Query('name') name: string) {
     const connection = getConnection('charactersConnection');
     return await connection
       .getRepository(Characters)
@@ -101,6 +101,27 @@ export class CharactersController {
       })
       .getRawMany();
   }
+
+    /* characters data */
+    @Get('/search_character')
+    async character_data(@Query('name') name: string) {
+      const connection = getConnection('charactersConnection');
+      return await connection
+        .getRepository(Characters)
+        .createQueryBuilder('characters')
+        .select([
+          'characters.guid as guid',
+          'characters.name as name',
+          'characters.race as race',
+          'characters.class as class',
+          'characters.level as level',
+          'characters.gender as gender',
+        ])
+        .where('LOWER(characters.name) = :name', {
+          name: `${name.toLowerCase()}%`,
+        })
+        .getRawOne();
+    }
 
   /* battleground_deserters */
   @Get('/battleground_deserters/:count')
