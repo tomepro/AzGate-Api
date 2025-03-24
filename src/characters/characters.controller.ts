@@ -422,7 +422,7 @@ export class CharactersController {
               'characters.level as level',
               'characters.totaltime as totaltime'
             ])
-            .where("characters.id = " + accountId)
+            .where("characters.account = " + accountId)
             .orderBy({
               'characters.level': 'DESC',
               'characters.totaltime': 'DESC',
