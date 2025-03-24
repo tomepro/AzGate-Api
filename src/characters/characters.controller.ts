@@ -403,4 +403,30 @@ export class CharactersController {
   ) {
     return this.charactersService.unstuck(charactersDto, accountId);
   }
+
+    /* ======================== CUSTOM =========================== */
+
+    @Get('/accountCharacters')
+    @UseGuards(new AuthGuard())
+    async accountCharacters(@Account('id') accountId: number) {
+      const connection = getConnection('charactersConnection');
+          return await connection
+            .getRepository(Characters)
+            .createQueryBuilder('characters')
+            .select([
+              'characters.guid as guid',
+              'characters.name as name',
+              'characters.race as race',
+              'characters.class as class',
+              'characters.gender as gender',
+              'characters.level as level',
+              'characters.totaltime as totaltime'
+            ])
+            .where("characters.id = " + accountId)
+            .orderBy({
+              'characters.level': 'DESC',
+              'characters.totaltime': 'DESC',
+            })
+            .getRawMany();
+    }
 }
