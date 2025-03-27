@@ -105,4 +105,12 @@ export class AuthController {
       .where('DATEDIFF(NOW(), last_login) < ' + days)
       .getRawMany();
   }
+
+    /* ======================== CUSTOM =========================== */
+
+  @Get('/me')
+  @UseGuards(new AuthGuard())
+  async getMe(@Account('id') accountId: number) {
+    return this.authService.getUserById(accountId);
+  }
 }

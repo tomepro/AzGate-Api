@@ -55,4 +55,10 @@ export class AuthService {
       token,
     );
   }
+
+    /* ======================== CUSTOM =========================== */
+
+  async getUserById(accountId: number) {
+    return this.accountRepository.getUserById(accountId);
+  }
 }

@@ -45,14 +45,9 @@ export class AccountRepository extends Repository<Account> {
     const account = this.create();
 
     const emailExists = await this.findOne({ reg_mail: email });
-    const phoneExists = await this.accountInformationRepo.findOne({ phone });
 
     if (emailExists) {
       throw new ConflictException(['Email address already exists']);
-    }
-
-    if (phoneExists) {
-      throw new ConflictException(['Phone already exists']);
     }
 
     if (passwordConfirm !== password) {
@@ -73,7 +68,7 @@ export class AccountRepository extends Repository<Account> {
       accountInformation.id = account.id;
       accountInformation.first_name = firstName;
       accountInformation.last_name = lastName;
-      accountInformation.phone = account.id.toString();
+      accountInformation.phone = account.id.toString(); // MODIFIED
       await this.accountInformationRepo.save(accountInformation);
 
       AccountRepository.createToken(account, HttpStatus.CREATED, response);
@@ -208,4 +203,15 @@ export class AccountRepository extends Repository<Account> {
 
     response.status(statusCode).json({ status: 'success', token, account });
   }
+
+    /* ======================== CUSTOM =========================== */
+
+    async getUserById(accountId:number) {
+      const accountExists = await this.findOne({ id: accountId });
+      if (accountExists) {
+        return { status: 'success'};        
+      }
+      throw new BadRequestException(['Account does not exist']);
+    }
+
 }
