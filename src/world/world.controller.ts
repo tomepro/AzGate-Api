@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  Param,
+  NotFoundException,
 } from '@nestjs/common';
 
 import { WorldService } from './world.service';
@@ -34,6 +36,7 @@ export class WorldController {
         .getRepository(Server_news)
         .createQueryBuilder('server_news')
         .select([
+          'server_news.id as id',
           'server_news.created_at as created_at',
           'server_news.title as title',
           'server_news.type as type',
@@ -42,5 +45,31 @@ export class WorldController {
           'server_news.text as text'
         ])
         .getRawMany();
+  }
+
+
+  @Get('/news/:id')
+  async getNewsById(@Param('id') id: string) {
+    const connection = getConnection('worldConnection');
+    const news = await connection
+      .getRepository(Server_news)
+      .createQueryBuilder('server_news')
+      .select([
+        'server_news.id as id',
+        'server_news.created_at as created_at',
+        'server_news.title as title',
+        'server_news.type as type',
+        'server_news.image as image',
+        'server_news.author as author',
+        'server_news.text as text',
+      ])
+      .where('server_news.id = :id', { id })
+      .getRawOne();
+
+    if (!news) {
+      throw new NotFoundException(`News with ID ${id} not found`);
+    }
+
+    return news;
   }
 }
