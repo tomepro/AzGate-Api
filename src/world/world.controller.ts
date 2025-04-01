@@ -6,7 +6,7 @@ import {
 import { WorldService } from './world.service';
 import { getConnection } from 'typeorm';
 import { Changelog } from './changelog.entity';
-import { News } from './news.entity';
+import { Server_news } from './news.entity';
 
 @Controller('world')
 export class WorldController {
@@ -31,7 +31,7 @@ export class WorldController {
   async getNews() {
     const connection = getConnection('worldConnection');
       return await connection
-        .getRepository(News)
+        .getRepository(Server_news)
         .createQueryBuilder('server_news')
         .select([
           'server_news.created_at as created_at',

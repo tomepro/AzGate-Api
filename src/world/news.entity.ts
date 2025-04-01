@@ -1,7 +1,7 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ synchronize: false })
-export class News extends BaseEntity {
+export class Server_news extends BaseEntity {
     @PrimaryGeneratedColumn()
     id:number;
 
