@@ -48,3 +48,15 @@ export const WebsiteDatabaseConfig: TypeOrmModuleOptions = {
   entities: [join(__dirname, '..', 'website', '*.entity.{js, ts}')],
   synchronize: true,
 };
+
+export const ShopDatabaseConfig: TypeOrmModuleOptions = {
+  name: 'shopConnection',
+  type: 'mysql',
+  host: process.env.SHOP_DATABASE_HOST,
+  port: +process.env.SHOP_DATABASE_PORT,
+  username: process.env.SHOP_DATABASE_USERNAME,
+  password: process.env.SHOP_DATABASE_PASSWORD,
+  database: process.env.SHOP_DATABASE_NAME,
+  entities: [join(__dirname, '..', 'shop', '*.entity.{js, ts}')],
+  synchronize: true,
+};
