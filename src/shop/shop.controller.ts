@@ -11,7 +11,7 @@ import { Shop_Items } from './shop_items.entity';
 export class ShopController {
   constructor(private shopService: ShopService) {}
 
-  @Get("/")
+  @Get("/shop")
   async getShop() {
     const connection = getConnection('shopConnection');
     return await connection
