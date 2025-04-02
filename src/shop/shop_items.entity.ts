@@ -5,8 +5,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
-export class Shop_Items extends BaseEntity {
+@Entity({ synchronize: false })
+export class shop_items extends BaseEntity {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
 

@@ -5,7 +5,7 @@ import {
 
 import { ShopService } from './shop.service';
 import { getConnection } from 'typeorm';
-import { Shop_Items } from './shop_items.entity';
+import { shop_items } from './shop_items.entity';
 
 @Controller('shop')
 export class ShopController {
@@ -15,7 +15,7 @@ export class ShopController {
   async getShop() {
     const connection = getConnection('shopConnection');
     return await connection
-    .getRepository(Shop_Items)
+    .getRepository(shop_items)
     .createQueryBuilder('shop_items')
     .select([
         'shop_items.id as id',
