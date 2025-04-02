@@ -18,6 +18,7 @@ export class ShopController {
     .getRepository(Shop_Items)
     .createQueryBuilder('shop_items')
     .select([
+        'shop_items.id as id',
         'shop_items.title as title',
         'shop_items.price as price',
         'shop_items.wowhead_link as wowhead_link',
