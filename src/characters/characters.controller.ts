@@ -429,4 +429,30 @@ export class CharactersController {
             })
             .getRawMany();
     }
+
+    @Get('/pvpranking')
+    async getPvpRanking() {
+      const connection = getConnection('charactersConnection');
+      return await connection.query(`
+    SELECT
+        c.name,
+        c.race,
+        c.gender,
+        c.class,
+        c.totaltime,
+        c.level,
+        c.totalKills
+    FROM
+        acore_characters.characters c
+    LEFT JOIN
+        acore_auth.account_access aa ON c.account = aa.id
+    WHERE
+        (aa.gmlevel IS NULL OR aa.gmlevel = 0)
+    ORDER BY
+        c.totalKills DESC,
+        c.totaltime DESC,
+        c.level ASC,
+        c.name ASC;
+  `)
+    }
 }
