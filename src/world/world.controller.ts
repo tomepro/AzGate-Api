@@ -72,4 +72,22 @@ export class WorldController {
 
     return news;
   }
+
+  @Get('/realms')
+    async getOnlineInRealm() {
+      const connection = getConnection('authConnection');
+      return await connection.query(`
+        SELECT
+            rl.name AS realm,
+            COUNT(CASE WHEN c.online = 1 THEN 1 END) AS online
+        FROM
+            acore_auth.realmlist rl
+        LEFT JOIN
+            acore_auth.realmcharacters rc ON rc.realmid = rl.id
+        LEFT JOIN
+            acore_characters.characters c ON rc.acctid = c.account
+        GROUP BY
+            rl.name
+      `)
+    }
 }
