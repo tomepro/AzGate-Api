@@ -448,11 +448,14 @@ export class CharactersController {
         acore_auth.account_access aa ON c.account = aa.id
     WHERE
         (aa.gmlevel IS NULL OR aa.gmlevel = 0)
+    AND
+        c.totalKills > 0
     ORDER BY
         c.totalKills DESC,
         c.totaltime DESC,
         c.level ASC,
-        c.name ASC;
+        c.name ASC
+    LIMIT 25;
   `)
     }
 }
