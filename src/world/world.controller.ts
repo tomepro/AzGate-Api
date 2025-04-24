@@ -88,7 +88,7 @@ export class WorldController {
         LEFT JOIN
             acore_characters.characters c ON rc.acctid = c.account
         GROUP BY
-            rl.name
+            rl.name, rl.flag
       `)
     }
 }
