@@ -79,6 +79,7 @@ export class WorldController {
       return await connection.query(`
         SELECT
             rl.name AS realm,
+            rl.flag AS flag,
             COUNT(CASE WHEN c.online = 1 THEN 1 END) AS online
         FROM
             acore_auth.realmlist rl
