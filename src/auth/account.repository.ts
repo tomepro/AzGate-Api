@@ -208,7 +208,7 @@ export class AccountRepository extends Repository<Account> {
 
     async getUserById(accountId:number) {
       const accountExists = await this.findOne({ id: accountId });
-      const account = await this.findOne({ where: { accountId } });
+      const account = await this.findOne({ where: { id: accountId } });
       if (accountExists) {
         return { status: 'success',account};        
       }
