@@ -208,8 +208,10 @@ export class AccountRepository extends Repository<Account> {
 
     async getUserById(accountId:number) {
       const accountExists = await this.findOne({ id: accountId });
-      const account = await this.findOne({ where: { id: accountId } });
       if (accountExists) {
+        const account = await this.findOne({ where: { id: accountId } });
+        delete account.salt;
+        delete account.verifier;
         return { status: 'success',account};        
       }
       throw new BadRequestException(['Account does not exist']);
