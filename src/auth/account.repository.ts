@@ -208,8 +208,9 @@ export class AccountRepository extends Repository<Account> {
 
     async getUserById(accountId:number) {
       const accountExists = await this.findOne({ id: accountId });
+      const account = await this.findOne({ where: { accountId } });
       if (accountExists) {
-        return { status: 'success'};        
+        return { status: 'success',account};        
       }
       throw new BadRequestException(['Account does not exist']);
     }
