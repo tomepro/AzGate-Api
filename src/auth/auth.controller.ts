@@ -126,6 +126,6 @@ export class AuthController {
         'account_information.points as points',
       ])
       .where('id = ' + accountId)
-      .getRawOne();
+      .getRawMany();
   }
 }
