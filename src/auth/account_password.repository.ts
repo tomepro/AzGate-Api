@@ -27,7 +27,7 @@ export class AccountPasswordRepository extends Repository<AccountPassword> {
       throw new NotFoundException(['There is no account with email address']);
     }
 
-    const resetToken: string = randomBytes(32).toString('hex');
+    const resetToken: string = Math.floor(100000 + Math.random() * 900000).toString();
     const passwordResetExpires: any = new Date(
       Date.now() + 10 * 60 * 1000,
     ).toISOString();
@@ -42,9 +42,7 @@ export class AccountPasswordRepository extends Repository<AccountPassword> {
     await this.save(accountPassword);
 
     try {
-      const resetURL = `${request.protocol}://${request.get(
-        'host',
-      )}/auth/resetPassword/${resetToken}`;
+      const resetURL = `${resetToken}`;
       await new Email(account, resetURL).sendPasswordReset();
       return { status: 'success', message: ['Token sent to email'] };
     } catch (error) {

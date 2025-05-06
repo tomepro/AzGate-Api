@@ -27,9 +27,13 @@ export class Email {
     return createTransport({
       host: process.env.MAIL_HOST,
       port: +process.env.MAIL_PORT,
+      secure:false,
       auth: {
         user: process.env.MAIL_USERNAME,
         pass: process.env.MAIL_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false, // Por si Gmail requiere (opcional, pero seguro evitar problemas)
       },
     }).sendMail(mailOptions);
   }
@@ -47,12 +51,31 @@ export class Email {
 
   async sendPasswordReset(): Promise<void> {
     const template = `
-            <h1>Forgot your password?</h1>
-            <p>Submit a patch request with your new password and password confirm to: <a href="${this.url}">Reset my password</a></p>
-            <p>Your password reset token (valid for only 10 minutes)</p>
-            <p>If you didn't forget your password, please ignore this email</p>
-        `;
-
-    await this.send(template, 'AzerothJS Reset Password');
+    <div style="font-family: 'Helvetica', 'Arial', sans-serif; background-color: #1a1a1a; color: #f0e6d2; padding: 30px; border: 2px solid #a8863f; border-radius: 10px;">
+      <div style="text-align: center;">
+        <img width="80" src="http://172.201.105.208/logo.png" alt="AzGate logo" />
+        <h1 style="color: #ffd700;">¿Has perdido la clave de tu destino?</h1>
+      </div>
+  
+      <p style="font-size: 16px; line-height: 1.5;">
+        El equilibrio de Azeroth depende de ti. Usa este código para restablecer tu contraseña en el cliente AzGate:
+      </p>
+  
+      <div style="background-color: #2d2d2d; padding: 10px; border-left: 4px solid #ffd700; margin: 20px 0;">
+        <p style="font-size: 18px; color: #00bfff; word-break: break-all;"><strong>${this.url}</strong></p>
+      </div>
+  
+      <p style="font-size: 16px;">
+        ⚠️ Este sello de restauración es válido únicamente durante los próximos <strong>10 minutos</strong>.
+      </p>
+  
+      <p style="font-style: italic; color: #ccc;">
+        Si esta invocación no fue tuya, ignora este mensaje y sigue tu camino, héroe.
+        <br>
+        Cordiales saludos, el equipo de AzGate.
+      </p>
+    </div>
+  `;  
+    await this.send(template, 'AzGate Reset Password');
   }
 }
