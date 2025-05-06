@@ -17,7 +17,7 @@ async function bootstrap() {
   if (process.env.NODE_ENV === 'production') {
     app.use(
       rateLimit({
-        max: 100,
+        max: 10000,
         windowMs: 60 * 60 * 1000,
         message: 'Too many requests from this IP, Please try again in an hour!',
       }),

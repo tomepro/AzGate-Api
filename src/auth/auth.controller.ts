@@ -21,6 +21,7 @@ import { getConnection } from 'typeorm';
 import { Account as AccountEntity } from './account.entity';
 import { AccountPasswordDto } from './dto/account_password.dto';
 import { EmailDto } from './dto/email.dto';
+import { AccountInformation } from './account_information.entity';
 
 @Controller('auth')
 export class AuthController {
@@ -112,5 +113,19 @@ export class AuthController {
   @UseGuards(new AuthGuard())
   async getMe(@Account('id') accountId: number) {
     return this.authService.getUserById(accountId);
+  }
+
+  @Get('/wallet')
+  @UseGuards(new AuthGuard())
+  async getWallet(@Account('id') accountId: number) {
+      return await getConnection('authConnection')
+      .getRepository(AccountInformation)
+      .createQueryBuilder('auth')
+      .select([
+        'account_information.coins as coins',
+        'account_information.points as points',
+      ])
+      .where('id = ' + accountId)
+      .getRawOne();
   }
 }
