@@ -116,16 +116,16 @@ export class AuthController {
   }
 
   @Get('/wallet')
-  @UseGuards(new AuthGuard())
-  async getWallet(@Account('id') accountId: number) {
-      return await getConnection('authConnection')
-      .getRepository(AccountInformation)
-      .createQueryBuilder('auth')
-      .select([
-        'account_information.coins as coins',
-        'account_information.points as points',
-      ])
-      .where('id = ' + accountId)
-      .getRawMany();
-  }
+@UseGuards(new AuthGuard())
+async getWallet(@Account('id') accountId: number) {
+  return await getConnection('authConnection')
+    .getRepository(AccountInformation)
+    .createQueryBuilder('account_information')
+    .select([
+      'account_information.coins as coins',
+      'account_information.points as points',
+    ])
+    .where('account_information.id = :id', { id: accountId })
+    .getRawOne();
+}
 }
