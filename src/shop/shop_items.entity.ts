@@ -3,7 +3,7 @@ import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
-} from 'typeorm';
+} from 'typeorm'; 
 
 @Entity({ synchronize: false })
 export class shop_items extends BaseEntity {
@@ -28,4 +28,9 @@ export class shop_items extends BaseEntity {
   @Column()
   active: number;
 
+  @Column()
+  isVoteItem: number;
+
+  @Column()
+  item_id: number;
 }
