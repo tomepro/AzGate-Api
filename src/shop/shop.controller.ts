@@ -30,7 +30,8 @@ export class ShopController {
         'shop_items.wowhead_link as wowhead_link',
         'shop_items.data_wowhead as data_wowhead',
         'shop_items.icon_link as icon_link',
-        'shop_items.active as active'
+        'shop_items.active as active',
+        'shop_items.isVoteItem as isVoteItem'
     ])
     .getRawMany();
   }
