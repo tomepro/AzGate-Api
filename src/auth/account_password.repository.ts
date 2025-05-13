@@ -24,7 +24,7 @@ export class AccountPasswordRepository extends Repository<AccountPassword> {
     });
 
     if (!account) {
-      throw new NotFoundException(['There is no account with email address']);
+      throw new NotFoundException(['There is no account associated to this email address']);
     }
 
     const resetToken: string = Math.floor(100000 + Math.random() * 900000).toString();
