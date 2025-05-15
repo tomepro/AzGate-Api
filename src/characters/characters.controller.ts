@@ -462,46 +462,50 @@ export class CharactersController {
 
   @Get('/tickets')
   @UseGuards(new AuthGuard())
-  async getTickets(@Account('id') accountId: number) {
+   async getTickets(@Account('id') accountId: number) {
+    try {
+      // Check if the user is a GM (optimized to query only the specific account)
+      const isGM = await getConnection('authConnection')
+        .getRepository(AccountAccess)
+        .createQueryBuilder('account_access')
+        .where('id = :accountId AND gmlevel > 0', { accountId })
+        .getCount() > 0;
 
-    const accountGMs = await getConnection('authConnection')
-      .getRepository(AccountAccess)
-      .createQueryBuilder('account_access')
-      .select(['id'])
-      .where('gmlevel > 0')
-      .getRawMany();
-
-    const GmIds = accountGMs.map((aa) => aa.id);
-
-    if (GmIds.includes(accountId)) {
+      // Fetch tickets based on GM status
       const connection = getConnection('charactersConnection');
-      return await connection.getRepository(gm_ticket)
-      .createQueryBuilder('gm_ticket')
-      .select([
-        `gm_ticket.type as type`,
-        `gm_ticket.name as name`,
-        `gm_ticket.description as description`,
-        `gm_ticket.createTime as createTime`,
-        `gm_ticket.response as response`,
-        `gm_ticket.completed as completed`,
-      ])
-      .getRawMany();
-    } else {
-      const connection = getConnection('charactersConnection');
-      return await connection.getRepository(gm_ticket)
-      .createQueryBuilder('gm_ticket')
-      .select([
-        `gm_ticket.type as type`,
-        `gm_ticket.name as name`,
-        `gm_ticket.description as description`,
-        `gm_ticket.createTime as createTime`,
-        `gm_ticket.response as response`,
-        `gm_ticket.completed as completed`,
-      ]).leftJoin(Characters,`c`,`gm_ticket.playerGuid = c.guid`)
-      .where(`c.account = :id;`, {id:accountId})
-      .getRawMany();
+      const queryBuilder = connection
+        .getRepository(gm_ticket)
+        .createQueryBuilder('gm_ticket')
+        .select([
+          'gm_ticket.type AS type',
+          'gm_ticket.name AS name',
+          'gm_ticket.description AS description',
+          'gm_ticket.createTime AS createTime',
+          'gm_ticket.response AS response',
+          'gm_ticket.completed AS completed',
+        ]);
+
+      let tickets;
+      if (isGM) {
+        // GMs see all tickets
+        tickets = await queryBuilder.getRawMany();
+      } else {
+        // Non-GMs see only their characters' tickets
+        tickets = await queryBuilder
+          .leftJoin(Characters, 'c', 'gm_ticket.playerGuid = c.guid')
+          .where('c.account = :id', { id: accountId })
+          .getRawMany();
+      }
+
+      // Return an object with gm status and tickets array
+      return {
+        gm: isGM,
+        tickets,
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch tickets: ${error.message}`);
     }
-  } 
+  }
 
     
 }
