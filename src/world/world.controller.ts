@@ -24,7 +24,7 @@ export class WorldController {
           'changelog.created_at as created_at',
           'changelog.text as text'
         ])
-        .orderBy('changelog.created_at', 'ASC')
+        .orderBy('changelog.id', 'DESC')
         .limit(1)
         .getRawOne();
       }
@@ -44,6 +44,7 @@ export class WorldController {
           'server_news.author as author',
           'server_news.text as text'
         ])
+        .orderBy('server_news.created_at', 'DESC')
         .getRawMany();
   }
 
