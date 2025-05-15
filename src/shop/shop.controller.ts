@@ -145,8 +145,10 @@ async buyItem(
       const mailIdResult = await transactionalEntityManager.query(
         `SELECT COALESCE(MAX(id), 0) AS max_id FROM acore_characters.mail`
       );
-      const newMailId = (mailIdResult[0]?.max_id || 0) + 1;
 
+      const newMailId = Number(mailIdResult[0]?.max_id || 0) + 1;
+
+      console.log("Sending new mail with id", newMailId);
       // Insert mail
       await transactionalEntityManager.query(
         `INSERT INTO acore_characters.mail (
