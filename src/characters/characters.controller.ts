@@ -25,6 +25,7 @@ import { Guild } from './guild.entity';
 import { GuildMember } from './guild_member.entity';
 import { RecoveryItem } from './recovery_item.entity';
 import { Worldstates } from './worldstates.entity';
+import { gm_ticket } from './gm_ticket.entity';
 
 @Controller('characters')
 export class CharactersController {
@@ -474,7 +475,7 @@ export class CharactersController {
 
     if (GmIds.includes(accountId)) {
       const connection = getConnection('charactersConnection');
-      return await connection.getRepository(Characters)
+      return await connection.getRepository(gm_ticket)
       .createQueryBuilder('gm_ticket')
       .select([
         `gm_ticket.type as type`,
@@ -487,7 +488,7 @@ export class CharactersController {
       .getRawMany();
     } else {
       const connection = getConnection('charactersConnection');
-      return await connection.getRepository(Characters)
+      return await connection.getRepository(gm_ticket)
       .createQueryBuilder('gm_ticket')
       .select([
         `gm_ticket.type as type`,
@@ -500,9 +501,6 @@ export class CharactersController {
       .where(`c.account = :id;`, {id:accountId})
       .getRawMany();
     }
-
-    
-
   } 
 
     
