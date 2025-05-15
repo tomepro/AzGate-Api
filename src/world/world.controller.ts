@@ -24,7 +24,7 @@ export class WorldController {
           'changelog.created_at as created_at',
           'changelog.text as text'
         ])
-        .orderBy('changelog.id', 'DESC')
+        .orderBy('changelog.created_at', 'DESC')
         .limit(1)
         .getRawOne();
       }
