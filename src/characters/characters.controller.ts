@@ -457,5 +457,53 @@ export class CharactersController {
         c.name ASC
     LIMIT 25;
   `)
+  }
+
+  @Get('/tickets')
+  @UseGuards(new AuthGuard())
+  async getTickets(@Account('id') accountId: number) {
+
+    const accountGMs = await getConnection('authConnection')
+      .getRepository(AccountAccess)
+      .createQueryBuilder('account_access')
+      .select(['id'])
+      .where('gmlevel > 0')
+      .getRawMany();
+
+    const GmIds = accountGMs.map((aa) => aa.id);
+
+    if (GmIds.includes(accountId)) {
+      const connection = getConnection('charactersConnection');
+      return await connection.getRepository(Characters)
+      .createQueryBuilder('gm_ticket')
+      .select([
+        `gm_ticket.type as type`,
+        `gm_ticket.name as name`,
+        `gm_ticket.description as description`,
+        `gm_ticket.createTime as createTime`,
+        `gm_ticket.response as response`,
+        `gm_ticket.completed as completed`,
+      ])
+      .getRawMany();
+    } else {
+      const connection = getConnection('charactersConnection');
+      return await connection.getRepository(Characters)
+      .createQueryBuilder('gm_ticket')
+      .select([
+        `gm_ticket.type as type`,
+        `gm_ticket.name as name`,
+        `gm_ticket.description as description`,
+        `gm_ticket.createTime as createTime`,
+        `gm_ticket.response as response`,
+        `gm_ticket.completed as completed`,
+      ]).leftJoin(Characters,`c`,`gm_ticket.playerGuid = c.guid`)
+      .where(`c.account = :id;`, {id:accountId})
+      .getRawMany();
     }
+
+    
+
+  } 
+
+    
 }
