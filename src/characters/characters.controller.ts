@@ -481,6 +481,7 @@ export class CharactersController {
         .getRepository(gm_ticket)
         .createQueryBuilder('gm_ticket')
         .select([
+          `gm_ticket.id AS id`,
           'gm_ticket.type AS type',
           'gm_ticket.name AS name',
           'gm_ticket.description AS description',
