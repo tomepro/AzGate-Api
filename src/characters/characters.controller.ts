@@ -1,11 +1,15 @@
 import {
+  BadRequestException,
   Body,
+  Catch,
   Controller,
   Get,
+  Delete,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 
@@ -507,5 +511,197 @@ export class CharactersController {
     }
   }
 
-    
+  @Patch('/tickets/complete/:id')
+  @UseGuards(new AuthGuard())
+  async completeTicket(@Account('id') accountId: number, @Param('id') ticketId: number) {
+    try {
+      // Check if the user is a GM (optimized to query only the specific account)
+      const isGM = await getConnection('authConnection')
+        .getRepository(AccountAccess)
+        .createQueryBuilder('account_access')
+        .where('id = :accountId AND gmlevel > 0', { accountId })
+        .getCount() > 0;
+      
+      if (!isGM) {
+        throw new UnauthorizedException('Account is not a GM')
+      } 
+
+      const connection = getConnection('charactersConnection');
+      const updateResult = await connection
+        .getRepository(gm_ticket)
+        .createQueryBuilder()
+        .update(gm_ticket)
+        .set({ completed: 1 })
+        .where('id = :ticketId', { ticketId })
+        .execute();
+
+      // Check if the ticket was found and updated
+      if (updateResult.affected === 0) {
+        throw new BadRequestException('Ticket not found');
+      }
+
+      // Optionally, fetch the updated ticket to return it
+      const updatedTicket = await connection
+        .getRepository(gm_ticket)
+        .createQueryBuilder('gm_ticket')
+        .select([
+          'gm_ticket.type AS type',
+          'gm_ticket.name AS name',
+          'gm_ticket.description AS description',
+          'gm_ticket.createTime AS createTime',
+          'gm_ticket.response AS response',
+          'gm_ticket.completed AS completed',
+        ])
+        .where('gm_ticket.id = :ticketId', { ticketId })
+        .getRawOne();
+
+      if (!updatedTicket) {
+        throw new BadRequestException('Failed to retrieve updated ticket');
+      }
+
+      return {
+        message: 'Ticket marked as completed',
+        ticket: updatedTicket,
+      };
+    } catch (error) {
+      // Re-throw BadRequestException as-is, or throw a generic error for other issues
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new Error(`Failed to complete ticket: ${error.message}`);
+    }
+  }
+
+  @Patch('/tickets/response/:id')
+  @UseGuards(new AuthGuard())
+  async updateTicketResponse(
+    @Account('id') accountId: number,
+    @Param('id') ticketId: number,
+    @Body('response') response: string,
+  ) {
+    try {
+      // Check if the user is a GM
+      const isGM = await getConnection('authConnection')
+        .getRepository(AccountAccess)
+        .createQueryBuilder('account_access')
+        .where('id = :accountId AND gmlevel > 0', { accountId })
+        .getCount() > 0;
+
+      if (!isGM) {
+        throw new UnauthorizedException('Account is not a GM');
+      }
+
+      // Validate the response input
+      if (!response || typeof response !== 'string' || response.trim() === '') {
+        throw new BadRequestException('Response must be a non-empty string');
+      }
+
+      // Update the ticket's response field
+      const connection = getConnection('charactersConnection');
+      const updateResult = await connection
+        .getRepository(gm_ticket)
+        .createQueryBuilder()
+        .update(gm_ticket)
+        .set({ response: response.trim() })
+        .where('id = :ticketId', { ticketId })
+        .execute();
+
+      // Check if the ticket was found and updated
+      if (updateResult.affected === 0) {
+        throw new BadRequestException('Ticket not found');
+      }
+
+      // Fetch the updated ticket to return it
+      const updatedTicket = await connection
+        .getRepository(gm_ticket)
+        .createQueryBuilder('gm_ticket')
+        .select([
+          'gm_ticket.type AS type',
+          'gm_ticket.name AS name',
+          'gm_ticket.description AS description',
+          'gm_ticket.createTime AS createTime',
+          'gm_ticket.response AS response',
+          'gm_ticket.completed AS completed',
+        ])
+        .where('gm_ticket.id = :ticketId', { ticketId })
+        .getRawOne();
+
+      if (!updatedTicket) {
+        throw new BadRequestException('Failed to retrieve updated ticket');
+      }
+
+      return {
+        message: 'Ticket response updated successfully',
+        ticket: updatedTicket,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new Error(`Failed to update ticket response: ${error.message}`);
+    }
+  }
+
+@Delete('/tickets/:id')
+  @UseGuards(new AuthGuard())
+  async deleteTicket(@Account('id') accountId: number, @Param('id') ticketId: number) {
+    try {
+      const isGM = await getConnection('authConnection')
+        .getRepository(AccountAccess)
+        .createQueryBuilder('account_access')
+        .where('id = :accountId AND gmlevel > 0', { accountId })
+        .getCount() > 0;
+
+      const connection = getConnection('charactersConnection');
+
+      const ticket = await connection
+        .getRepository(gm_ticket)
+        .createQueryBuilder('gm_ticket')
+        .select(['gm_ticket.playerGuid'])
+        .where('gm_ticket.id = :ticketId', { ticketId })
+        .getRawOne();
+
+      if (!ticket) {
+        throw new BadRequestException('Ticket not found');
+      }
+      if (!isGM) {
+        const character = await connection
+          .getRepository(Characters)
+          .createQueryBuilder('c')
+          .where('c.guid = :playerGuid AND c.account = :accountId', {
+            playerGuid: ticket.playerGuid,
+            accountId,
+          })
+          .getCount();
+
+        if (character === 0) {
+          throw new UnauthorizedException('You can only delete your own tickets');
+        }
+      }
+
+      // Delete the ticket
+      const deleteResult = await connection
+        .getRepository(gm_ticket)
+        .createQueryBuilder()
+        .delete()
+        .from(gm_ticket)
+        .where('id = :ticketId', { ticketId })
+        .execute();
+
+      if (deleteResult.affected === 0) {
+        throw new BadRequestException('Failed to delete ticket');
+      }
+
+      return {
+        message: 'Ticket deleted successfully',
+        ticketId,
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException || error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new Error(`Failed to delete ticket: ${error.message}`);
+    }
+  }
+
 }
