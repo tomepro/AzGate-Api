@@ -490,7 +490,7 @@ export class CharactersController {
           'gm_ticket.response AS response',
           'gm_ticket.completed AS completed',
           'c.race AS race',
-          'c.class AS class',
+          'c.gender AS gender',
         ]);
 
       let tickets;
