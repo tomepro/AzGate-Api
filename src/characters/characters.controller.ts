@@ -480,6 +480,7 @@ export class CharactersController {
       const queryBuilder = connection
         .getRepository(gm_ticket)
         .createQueryBuilder('gm_ticket')
+        .leftJoin(Characters, 'c', 'gm_ticket.playerGuid = c.guid')
         .select([
           `gm_ticket.id AS id`,
           'gm_ticket.type AS type',
@@ -488,6 +489,8 @@ export class CharactersController {
           'gm_ticket.createTime AS createTime',
           'gm_ticket.response AS response',
           'gm_ticket.completed AS completed',
+          'c.race AS race',
+          'c.class AS class',
         ]);
 
       let tickets;
