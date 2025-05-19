@@ -489,8 +489,8 @@ export class CharactersController {
           'gm_ticket.createTime AS createTime',
           'gm_ticket.response AS response',
           'gm_ticket.completed AS completed',
-          'c.race AS race',
-          'c.gender AS gender',
+          'characters.race AS race',
+          'characters.gender AS gender',
         ]);
 
       let tickets;
